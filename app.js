@@ -65,6 +65,11 @@ app.post('/api/items', (req, res) => {
   res.status(201).json(newItem);
 });
 
+app.put('/api/items', (req, res) => {
+    console.log ("update");
+
+})
+
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`)
   })
