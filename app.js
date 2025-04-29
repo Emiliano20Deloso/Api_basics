@@ -9,14 +9,10 @@ const PORT = 3000
 app.use(express.json())
 app.use(express.static('./public'))
 
-//Primer endpoint
-app.get('/api/items', (req, res) => {
-    res.json([]);      
-});
-
+//1º Carga la pagina web
 app.get('/', (req, res)=>
     {
-        fs.readFile('./public/html/helloWorld.html', 'utf8', 
+        fs.readFile('./public/html/index.html', 'utf8', 
         (err, html) => {
             if(err)
             {
@@ -29,8 +25,14 @@ app.get('/', (req, res)=>
             console.log("Page sent!")
         })
     })
-    
 
+//2º Lista todos los items almacenados en el catalogo
+app.get('/api/items', (req, res) => {
+    res.json([]);      
+});
+
+
+//3º 
     app.get('/api/hello', (req, res)=>
         {
             console.log(req.query)
@@ -66,8 +68,3 @@ app.post('/api/items', (req, res) => {
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`)
   })
-
-
-
-
-
