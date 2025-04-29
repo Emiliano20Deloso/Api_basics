@@ -65,6 +65,15 @@ app.post('/api/items', (req, res) => {
   res.status(201).json(newItem);
 });
 
+//delete item
+app.delete('api/delete', (req, res) => {
+    console.log("delete")
+
+
+})
+
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`)
   })
+
+  
