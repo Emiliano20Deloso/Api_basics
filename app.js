@@ -45,7 +45,7 @@ app.get('/api/items/:id', (req, res) => {
   res.json(item)
 })
 
-// 4º DELETE /api/items/:id 
+// DELETE /api/items/:id
 app.delete('/api/items/:id', (req, res) => {
   const itemId = +req.params.id
   const index = itemsCatalog.findIndex(i => i.id === itemId)
@@ -53,7 +53,21 @@ app.delete('/api/items/:id', (req, res) => {
     return res.status(404).json({ message: "Item not found" })
   }
   itemsCatalog.splice(index, 1)
-  res.status(200).json({ message: "Item deleted successfully" })
+  res.json({ message: "Item deleted successfully" })
+})
+
+// PUT /api/items/:id 
+app.put('/api/items/:id', (req, res) => {
+  const itemId = +req.params.id
+  const { name, type, effect } = req.body
+  const item = itemsCatalog.find(i => i.id === itemId)
+  if (!item) {
+    return res.status(404).json({ message: "Item not found" })
+  }
+  if (name)   item.name   = name
+  if (type)   item.type   = type
+  if (effect) item.effect = effect
+  res.json(item)
 })
 
 app.listen(PORT, () => {
