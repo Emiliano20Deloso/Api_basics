@@ -188,6 +188,44 @@ app.delete('/api/users/:id', (req, res) => {
   });
 });
 
+// PUT /api/users/:id 
+app.put('/api/users/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const user = usersCatalog.find(u => u.id === id);
+
+  if (!user) {
+    return res.status(404).json({ message: "Usuario no existe" });
+  }
+  const { name, email, items } = req.body;
+
+  if (email && usersCatalog.some(u => u.email === email && u.id !== id)) {
+    return res.status(409).json({ message: "Email ya registrado" });
+  }
+
+  if (items !== undefined) {
+    if (!Array.isArray(items)) {
+      return res.status(400).json({ message: "Items debe ser un array de IDs" });
+    }
+    const invalid = items.filter(itemId => !itemsCatalog.some(it => it.id === itemId));
+    if (invalid.length) {
+      return res.status(400).json({ message: `Items inválidos: ${invalid.join(', ')}` });
+    }
+    user.items = [...items];
+  }
+
+  if (name)  user.name = name;
+  if (email) user.email = email;
+
+  const updatedUser = {
+    id:    user.id,
+    name:  user.name,
+    email: user.email,
+    items: user.items.map(itemId => itemsCatalog.find(it => it.id === itemId))
+  };
+
+  res.json(updatedUser);
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
