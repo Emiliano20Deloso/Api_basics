@@ -9,66 +9,54 @@ const PORT = 3000
 app.use(express.json())
 app.use(express.static('./public'))
 
-//1º Cargar la página web
-app.get('/', (req, res) => {
-    fs.readFile('./public/html/index.html', 'utf8', 
-    (err, html) => {
-        if (err) {
-            res.status(500).send('There was an error: ' + err)
-            return
-        }
+let itemsCatalog = []
+let nextId = 1
 
-        console.log("Sending page...")
-        res.send(html)
-        console.log("Page sent!")
-    })
+// POST /api/items 
+app.post('/api/items', (req, res) => {
+  const { name, type, effect } = req.body
+  if (!name || !type || !effect) {
+    return res.status(400).json({ message: "Faltan name, type o effect" })
+  }
+  if (itemsCatalog.some(item => item.name === name)) {
+    return res.status(409).json({ message: "Ese item ya existe" })
+  }
+  const newItem = { id: nextId++, name, type, effect }
+  itemsCatalog.push(newItem)
+  res.status(201).json(newItem)
 })
 
-//2º Lista todos los items almacenados en el catálogo
-let itemsCatalog = []; // Vamos a usar esta variable para almacenar los items
-
+// GET /api/items 
 app.get('/api/items', (req, res) => {
-    if (itemsCatalog.length === 0) {
-        return res.status(404).json({ message: "No items found" });
-    }
-    res.json(itemsCatalog);      
-});
+  if (itemsCatalog.length === 0) {
+    return res.status(404).json({ message: "No items found" })
+  }
+  res.json(itemsCatalog)
+})
 
-//3º Crear y agregar un nuevo item
-app.post('/api/items', (req, res) => {
-    const newItem = {
-        id: itemsCatalog.length + 1, // Asigna un ID en +1 
-        ...req.body
-    };
-    itemsCatalog.push(newItem);
-    res.status(201).json(newItem);
-});
+// GET /api/items/:id 
+app.get('/api/items/:id', (req, res) => {
+  const itemId = +req.params.id
+  const item = itemsCatalog.find(i => i.id === itemId)
+  if (!item) {
+    return res.status(404).json({ message: "Item not found" })
+  }
+  res.json(item)
+})
 
-//4º Eliminar un item por ID
+// 4º DELETE /api/items/:id 
 app.delete('/api/items/:id', (req, res) => {
-    const { id } = req.params;  // Obtener el ID del parámetro de la URL
-
-    // Convertir ID a número (asegúrate de que las comparaciones sean del mismo tipo)
-    const itemId = parseInt(id, 10);
-
-    // Buscar el item en el catálogo
-    const index = itemsCatalog.findIndex(item => item.id === itemId);
-
-    // Verificar si el item existe
-    if (index === -1) {
-        return res.status(404).json({ message: "Item not found" });
-    }
-
-    // Eliminar el item
-    itemsCatalog.splice(index, 1);
-
-    // Devolver una respuesta de éxito
-    res.status(200).json({ message: "Item deleted successfully" });
-});
-
+  const itemId = +req.params.id
+  const index = itemsCatalog.findIndex(i => i.id === itemId)
+  if (index === -1) {
+    return res.status(404).json({ message: "Item not found" })
+  }
+  itemsCatalog.splice(index, 1)
+  res.status(200).json({ message: "Item deleted successfully" })
+})
 
 app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`)
+  console.log(`Server running on port ${PORT}`)
 })
 
   
