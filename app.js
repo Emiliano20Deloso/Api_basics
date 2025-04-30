@@ -9,62 +9,22 @@ const PORT = 3000
 app.use(express.json())
 app.use(express.static('./public'))
 
-//1º Carga la pagina web
-app.get('/', (req, res)=>
-    {
-        fs.readFile('./public/html/index.html', 'utf8', 
-        (err, html) => {
-            if(err)
-            {
-                res.status(500).send('There was an error: ' + err)
-                return 
-            }
-            
-            console.log("Sending page...")
-            res.send(html)
-            console.log("Page sent!")
-        })
+// 1º Cargar la página web al acceder a la raíz "/"
+app.get('/', (req, res) => {
+    // Leemos el archivo HTML que queremos mostrar
+    fs.readFile('./public/html/index.html', 'utf8', (err, html) => {
+        if (err) {
+            // Si ocurre un error al leer el archivo, devolvemos un error 500
+            res.status(500).send('There was an error: ' + err)
+            return
+        }
+
+        // Si el archivo se lee correctamente, lo enviamos como respuesta
+        console.log("Sending page...")
+        res.send(html)
+        console.log("Page sent!")
     })
-
-//2º Lista todos los items almacenados en el catalogo
-app.get('/api/items', (req, res) => {
-    res.json([]);      
-});
-
-
-//3º 
-    app.get('/api/hello', (req, res)=>
-        {
-            console.log(req.query)
-            // The hasOwnProperty method is used to check if a property exists in the request object
-            if(req.query.hasOwnProperty('name') && req.query.hasOwnProperty('surname'))
-                res.send(`Hello ${req.query.name} ${req.query.surname}`)
-            else
-                res.send('Hello!')
-        })
-        
-        // The /api/greeting/:name/:surname route will return a simple greeting. The name and surname parameters are required, and can be passed as parameters.
-        app.post('/api/greeting/:name/:surname', (req, res)=>{
-            console.log(req.params)
-            if(req.params.hasOwnProperty('name') && req.params.hasOwnProperty('surname'))
-                res.send(`Hello ${req.params.name} ${req.params.surname}`)
-            else
-                res.send('Hello!')
-        })
-        
-// almacén en memoria
-let items = [];
-
-// POST /api/items → crea y devuelve el nuevo item
-app.post('/api/items', (req, res) => {
-  const newItem = {
-    id: items.length + 1,
-    ...req.body
-  };
-  items.push(newItem);
-  res.status(201).json(newItem);
-});
-
+})
 app.listen(PORT, () => {
-    console.log(`Example app listening on port ${PORT}`)
-  })
+    console.log(`Server running on port ${PORT}`)
+})
