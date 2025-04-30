@@ -3,9 +3,16 @@
 async function main() {
     const base = 'http://localhost:3000';
   
+    // -------- HTML --------
+    console.log('--- GET / (servir página index) ---');
+    let res = await fetch(`${base}/`);
+    console.log('Status:', res.status);
+    const html = await res.text();
+    console.log('Body (primeros 200 caracteres):', html.slice(0, 200), '...');
+  
     // -------- ITEMS --------
     console.log('--- GET /api/items ---');
-    let res = await fetch(`${base}/api/items`);
+    res = await fetch(`${base}/api/items`);
     console.log('Status:', res.status, 'Body:', await res.json());
   
     console.log('--- POST /api/items {name, type, effect} ---');
