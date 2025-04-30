@@ -70,6 +70,31 @@ app.put('/api/items', (req, res) => {
 
 })
 
+//4º update 
+app.put('/api/items/:id', (req, res) => {
+    const { id } = req.params;  // Obtener el ID del parámetro de la URL
+    const { name, effect } = req.body;  // Obtener los datos a actualizar desde el cuerpo de la solicitud
+
+    // Convertir ID a número de manera implícita, si los IDs son cadenas, puedes omitir esto
+    const itemId = +id; // Usando el operador unario + para convertirlo a número
+
+    // Buscar el item en el catálogo
+    const item = items.find(item => item.id === itemId);
+
+    // Verificar si el item existe
+    if (!item) {
+        console.log(`Item with ID ${id} not found.`);
+        return res.status(404).json({ message: "Item not found" });
+    }
+
+    // Actualizar los campos del item (solo los campos enviados)
+    if (name) item.name = name;
+    if (effect) item.effect = effect;
+
+    // Enviar la respuesta con el item actualizado
+    res.status(200).json(item);
+});
+
 app.listen(PORT, () => {
     console.log(`Example app listening on port ${PORT}`)
   })
