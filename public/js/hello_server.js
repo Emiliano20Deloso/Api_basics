@@ -1,5 +1,3 @@
-// public/js/hello_server.js
-
 document.addEventListener('DOMContentLoaded', () => {
     const base = window.location.origin;
   
@@ -32,7 +30,6 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ effect: '+100 daño' })
       });
-      // <-- aquí NO borramos el ítem todavía
   
       // --- USERS ---
       await doFetch('/api/users'); // debería devolver "No hay usuarios"
