@@ -1,10 +1,12 @@
+// public/js/hello_server.js
+
 document.addEventListener('DOMContentLoaded', () => {
     const base = window.location.origin;
   
     async function doFetch(path, opts = {}) {
       try {
         const res = await fetch(base + path, opts);
-        const ct = res.headers.get('Content-Type') || '';
+        const ct  = res.headers.get('Content-Type') || '';
         const body = ct.includes('application/json')
           ? await res.json()
           : await res.text();
@@ -16,45 +18,66 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   
     (async () => {
-      // Raíz
-      await doFetch('/');
-  
-      // ITEMS
+      // --- ITEMS ---
       await doFetch('/api/items');
-      const newItem = await doFetch('/api/items', {
+      const createdItem = await doFetch('/api/items', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: 'Espada Tron', type: 'arma', effect: '+99 daño' })
       });
-      const itemId = newItem.id ?? newItem.created?.[0]?.id;
+      const itemId = createdItem.id ?? createdItem.created?.[0]?.id;
       await doFetch(`/api/items/${itemId}`);
       await doFetch(`/api/items/${itemId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ effect: '+100 daño' })
       });
-      await doFetch(`/api/items/${itemId}`, { method: 'DELETE' });
+      // <-- aquí NO borramos el ítem todavía
   
-      // USERS
-      await doFetch('/api/users');
+      // --- USERS ---
+      await doFetch('/api/users'); // debería devolver "No hay usuarios"
+  
+      // 1) Crear usuario sin items
       const u1 = await doFetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: 'Usuario Tron', email: 'tron@ejemplo.com' })
       });
-      const user1Id = u1.created?.[0]?.user?.id ?? u1.id;
+      let user1Id;
+      if (Array.isArray(u1.created) && u1.created.length) {
+        user1Id = u1.created[0].user.id;
+      } else if (u1.id) {
+        user1Id = u1.id;
+      }
+  
+      // 2) Crear usuario con items
       const u2 = await doFetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: 'Usuario Neo', email: 'neo@ejemplo.com', items: [itemId] })
       });
-      const user2Id = u2.created?.[0]?.user?.id ?? u2.id;
+      let user2Id;
+      if (Array.isArray(u2.created) && u2.created.length) {
+        user2Id = u2.created[0].user.id;
+      } else if (u2.id) {
+        user2Id = u2.id;
+      }
+  
+      // 3) Obtener usuario por ID
       await doFetch(`/api/users/${user2Id}`);
+  
+      // 4) Actualizar usuario
       await doFetch(`/api/users/${user2Id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: 'Neo Modificado', items: [] })
       });
+  
+      // 5) Borrar usuario1
       await doFetch(`/api/users/${user1Id}`, { method: 'DELETE' });
+  
+      // --- Finalmente, BORRAR EL ÍTEM que ya no usamos ---
+      await doFetch(`/api/items/${itemId}`, { method: 'DELETE' });
     })();
   });
+  

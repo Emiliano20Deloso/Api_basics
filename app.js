@@ -8,13 +8,13 @@ const PORT = 3000
 
 // Middleware 
 app.use(express.json())
-app.use(express.static('public'))
+app.use(express.static('./public'))
 
 let itemsCatalog = []
 let nextId = 1
 
 app.get('/', (req, res) => {
-    res.sendFile(path.resolve('./public/index.html'));
+    res.sendFile(path.resolve('public/html/index.html'));
   });
   
   app.listen(PORT, () => {
@@ -38,9 +38,9 @@ app.post('/api/items', (req, res) => {
 // GET /api/items 
 app.get('/api/items', (req, res) => {
   if (itemsCatalog.length === 0) {
-    return res.status(404).json({ message: "No items found" })
+    return res.status(202).json({ message: "No items found" })
   }
-  res.json(itemsCatalog)
+  res.status(200).json(itemsCatalog)
 })
 
 // GET /api/items/:id 
