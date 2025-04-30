@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   
       // --- USERS ---
-      await doFetch('/api/users'); // debería devolver "No hay usuarios"
+      await doFetch('/api/users');
   
       // 1) Crear usuario sin items
       const u1 = await doFetch('/api/users', {
@@ -77,4 +77,4 @@ document.addEventListener('DOMContentLoaded', () => {
       await doFetch(`/api/items/${itemId}`, { method: 'DELETE' });
     })();
   });
-  
+ 
