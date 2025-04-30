@@ -1,24 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="../css/style.css">
-    <title>API juego</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Documentación y Pruebas API Juego</title>
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header>
-        <h1>API juego</h1>
-        <p>Documentación y pruebas de los endpoints</p>
-    </header>
-    <class="container">
-        <h2>Endpoints</h2>
-        <ul>
-            <li><a href="http://localhost:3000/api/juego">GET /api/juego</a></li>
-            <li><a href="http://localhost:3000/api/juego/:id">GET /api/juego/:id</a></li>
-            <li><a href="http://localhost:3000/api/juego">POST /api/juego</a></li>
-        </ul>
-</body>
-<script src="../js/app.js"></script>
+  <header class="header">
+    <h1>API Juego – Documentación & Pruebas</h1>
+  </header>
+  <main class="main-grid">
+    <section class="doc">
+      <h2>Documentación de Endpoints</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Método</th>
+              <th>Ruta</th>
+              <th>Descripción</th>
+              <th>Body (JSON)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>GET</td><td>/</td><td>Carga esta página</td><td>—</td></tr>
+            <tr><td>GET</td><td>/api/items</td><td>Listar todos los items</td><td>—</td></tr>
+            <tr><td>POST</td><td>/api/items</td><td>Crear uno o varios items</td>
+                <td><code>{"name":"Espada","type":"arma","effect":"+10"}</code></td></tr>
+            <tr><td>GET</td><td>/api/items/:id</td><td>Obtener item por ID</td><td>—</td></tr>
+            <tr><td>PUT</td><td>/api/items/:id</td><td>Actualizar campos</td>
+                <td><code>{"effect":"+15 daño"}</code></td></tr>
+            <tr><td>DELETE</td><td>/api/items/:id</td><td>Borrar item</td><td>—</td></tr>
+            <tr><td>GET</td><td>/api/users</td><td>Listar usuarios (+items)</td><td>—</td></tr>
+            <tr><td>POST</td><td>/api/users</td><td>Crear uno o varios usuarios</td>
+                <td><code>{"name":"Ana","email":"a@e.com","items":[1]}</code></td></tr>
+            <tr><td>GET</td><td>/api/users/:id</td><td>Obtener usuario por ID</td><td>—</td></tr>
+            <tr><td>PUT</td><td>/api/users/:id</td><td>Actualizar campos usuario</td>
+                <td><code>{"name":"Nuevo Nombre"}</code></td></tr>
+            <tr><td>DELETE</td><td>/api/users/:id</td><td>Borrar usuario</td><td>—</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+    <section class="tests">
+      <h2>Pruebas Automáticas (ver consola)</h2>
+      <p>Al cargar, este script ejecuta <code>fetch</code> contra cada endpoint y loggea estado y respuesta.</p>
+    </section>
+  </main>
+  <footer class="footer">
+    <p>Node.js • Express • Fetch API</p>
+  </footer>
 
+  <!-- Se sirve desde public/js/hello_server.js -->
+  <script src="/js/hello_server.js"></script>
+</body>
 </html>

@@ -8,10 +8,18 @@ const PORT = 3000
 
 // Middleware 
 app.use(express.json())
-app.use(express.static('./public'))
+app.use(express.static('public'))
 
 let itemsCatalog = []
 let nextId = 1
+
+app.get('/', (req, res) => {
+    res.sendFile(path.resolve('./public/index.html'));
+  });
+  
+  app.listen(PORT, () => {
+    console.log(`Servidor escuchando en http://localhost:${PORT}`);
+  });
 
 // POST /api/items 
 app.post('/api/items', (req, res) => {
