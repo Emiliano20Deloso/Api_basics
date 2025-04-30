@@ -145,6 +145,26 @@ app.get('/api/users', (req, res) => {
   res.json(result);
 });
 
+// GET /api/users/:id →
+app.get('/api/users/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const user = usersCatalog.find(u => u.id === id);
+
+  if (!user) {
+    return res.status(404).json({ message: "Usuario no existe" });
+  }
+  const userWithItems = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    items: user.items.map(itemId =>
+      itemsCatalog.find(it => it.id === itemId)
+    )
+  };
+
+  res.json(userWithItems);
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
