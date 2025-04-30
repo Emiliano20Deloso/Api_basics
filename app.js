@@ -165,6 +165,29 @@ app.get('/api/users/:id', (req, res) => {
   res.json(userWithItems);
 });
 
+// DELETE /api/users/:id 
+app.delete('/api/users/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const idx = usersCatalog.findIndex(u => u.id === id);
+
+  if (idx === -1) {
+    return res.status(404).json({ message: "Usuario no existe" });
+  }
+  const [deletedUser] = usersCatalog.splice(idx, 1);
+  const userWithItems = {
+    id: deletedUser.id,
+    name: deletedUser.name,
+    email: deletedUser.email,
+    items: deletedUser.items.map(itemId =>
+      itemsCatalog.find(it => it.id === itemId)
+    )
+  };
+  res.json({
+    message: "Usuario borrado exitosamente",
+    user: userWithItems
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
