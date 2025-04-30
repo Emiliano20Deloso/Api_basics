@@ -9,60 +9,94 @@ const PORT = 3000
 app.use(express.json())
 app.use(express.static('./public'))
 
-//1º Carga la pagina web
-app.get('/', (req, res)=>
-    {
-        fs.readFile('./public/html/index.html', 'utf8', 
-        (err, html) => {
-            if(err)
-            {
-                res.status(500).send('There was an error: ' + err)
-                return 
-            }
-            
-            console.log("Sending page...")
-            res.send(html)
-            console.log("Page sent!")
-        })
-    })
+let usersCatalog = [];
+let nextUserId = 1;
 
-//2º Lista todos los items almacenados en el catalogo
-app.get('/api/items', (req, res) => {
-    res.json([]);      
+// POST /api/users 
+app.post('/api/users', (req, res) => {
+  const payload = req.body;
+  const newUsers = Array.isArray(payload) ? payload : [payload];
+  const created = [];
+  const errors = [];
+
+  newUsers.forEach(user => {
+    const { name, email, items } = user;
+
+    // 1) Validar name y email
+    if (!name || !email) {
+      errors.push({ user, message: "Faltan name o email" });
+      return;
+    }
+    
+    if (usersCatalog.some(u => u.email === email)) {
+      errors.push({ user, message: `Email "${email}" ya registrado` });
+      return;
+    }
+    // 3) Validar items (si vienen)
+    let userItems = [];
+    if (items !== undefined) {
+      if (!Array.isArray(items)) {
+        errors.push({ user, message: "Items debe ser un array de IDs" });
+        return;
+      }
+      const invalid = items.filter(id => !itemsCatalog.some(it => it.id === id));
+      if (invalid.length) {
+        errors.push({ user, message: `Items inválidos: ${invalid.join(', ')}` });
+        return;
+      }
+      userItems = [...items];
+    }
+    // 4) Crear y guardar
+    const newUser = { id: nextUserId++, name, email, items: userItems };
+    usersCatalog.push(newUser);
+    created.push({ id: newUser.id, message: "Usuario creado" });
+  });
+
+  // 5) Responder según resultados
+  if (created.length && !errors.length)      return res.status(201).json({ created });
+  if (!created.length && errors.length)      return res.status(400).json({ errors });
+  /* mixto */                              return res.status(207).json({ created, errors });
 });
 
+// GET /api/users 
+app.get('/api/users', (req, res) => {
 
-//3º 
-    app.get('/api/hello', (req, res)=>
-        {
-            console.log(req.query)
-            // The hasOwnProperty method is used to check if a property exists in the request object
-            if(req.query.hasOwnProperty('name') && req.query.hasOwnProperty('surname'))
-                res.send(`Hello ${req.query.name} ${req.query.surname}`)
-            else
-                res.send('Hello!')
-        })
-        
-        // The /api/greeting/:name/:surname route will return a simple greeting. The name and surname parameters are required, and can be passed as parameters.
-        app.post('/api/greeting/:name/:surname', (req, res)=>{
-            console.log(req.params)
-            if(req.params.hasOwnProperty('name') && req.params.hasOwnProperty('surname'))
-                res.send(`Hello ${req.params.name} ${req.params.surname}`)
-            else
-                res.send('Hello!')
-        })
-        
-// almacén en memoria
-let items = [];
+  if (usersCatalog.length === 0) {
+    return res.status(200).json({ message: "No hay usuarios" });
+  }
 
-// POST /api/items → crea y devuelve el nuevo item
-app.post('/api/items', (req, res) => {
-  const newItem = {
-    id: items.length + 1,
-    ...req.body
+  // Mapear cada usuario para reemplazar los IDs de items por los objetos completos
+  const result = usersCatalog.map(u => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    items: u.items.map(itemId => {
+      return itemsCatalog.find(it => it.id === itemId);
+    })
+  }));
+
+  res.json(result);
+});
+
+// GET /api/users/:id
+app.get('/api/users/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const user = usersCatalog.find(u => u.id === id);
+
+  // Verifica existencia
+  if (!user) {
+    return res.status(404).json({ message: "Usuario no existe" });
+  }
+
+  //Reemplaza cada item ID por el objeto completo
+  const userWithItems = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    items: user.items.map(itemId => itemsCatalog.find(it => it.id === itemId))
   };
-  items.push(newItem);
-  res.status(201).json(newItem);
+
+  res.json(userWithItems);
 });
 
 app.listen(PORT, () => {
