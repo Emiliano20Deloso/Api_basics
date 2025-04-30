@@ -5,75 +5,70 @@ import fs from 'fs'
 const app = express()
 const PORT = 3000
 
-//Midllewares 
+// Middleware 
 app.use(express.json())
 app.use(express.static('./public'))
 
-//1º Carga la pagina web
-app.get('/', (req, res)=>
-    {
-        fs.readFile('./public/html/index.html', 'utf8', 
-        (err, html) => {
-            if(err)
-            {
-                res.status(500).send('There was an error: ' + err)
-                return 
-            }
-            
-            console.log("Sending page...")
-            res.send(html)
-            console.log("Page sent!")
-        })
+//1º Cargar la página web
+app.get('/', (req, res) => {
+    fs.readFile('./public/html/index.html', 'utf8', 
+    (err, html) => {
+        if (err) {
+            res.status(500).send('There was an error: ' + err)
+            return
+        }
+
+        console.log("Sending page...")
+        res.send(html)
+        console.log("Page sent!")
     })
-
-//2º Lista todos los items almacenados en el catalogo
-app.get('/api/items', (req, res) => {
-    res.json([]);      
-});
-
-
-//3º 
-    app.get('/api/hello', (req, res)=>
-        {
-            console.log(req.query)
-            // The hasOwnProperty method is used to check if a property exists in the request object
-            if(req.query.hasOwnProperty('name') && req.query.hasOwnProperty('surname'))
-                res.send(`Hello ${req.query.name} ${req.query.surname}`)
-            else
-                res.send('Hello!')
-        })
-        
-        // The /api/greeting/:name/:surname route will return a simple greeting. The name and surname parameters are required, and can be passed as parameters.
-        app.post('/api/greeting/:name/:surname', (req, res)=>{
-            console.log(req.params)
-            if(req.params.hasOwnProperty('name') && req.params.hasOwnProperty('surname'))
-                res.send(`Hello ${req.params.name} ${req.params.surname}`)
-            else
-                res.send('Hello!')
-        })
-        
-// almacén en memoria
-let items = [];
-
-// POST /api/items → crea y devuelve el nuevo item
-app.post('/api/items', (req, res) => {
-  const newItem = {
-    id: items.length + 1,
-    ...req.body
-  };
-  items.push(newItem);
-  res.status(201).json(newItem);
-});
-
-//delete item
-app.delete('api/delete', (req, res) => {
-    console.log("delete")
-
-
 })
 
+//2º Lista todos los items almacenados en el catálogo
+let itemsCatalog = []; // Vamos a usar esta variable para almacenar los items
+
+app.get('/api/items', (req, res) => {
+    if (itemsCatalog.length === 0) {
+        return res.status(404).json({ message: "No items found" });
+    }
+    res.json(itemsCatalog);      
+});
+
+//3º Crear y agregar un nuevo item
+app.post('/api/items', (req, res) => {
+    const newItem = {
+        id: itemsCatalog.length + 1, // Asigna un ID en +1 
+        ...req.body
+    };
+    itemsCatalog.push(newItem);
+    res.status(201).json(newItem);
+});
+
+//4º Eliminar un item por ID
+app.delete('/api/items/:id', (req, res) => {
+    const { id } = req.params;  // Obtener el ID del parámetro de la URL
+
+    // Convertir ID a número (asegúrate de que las comparaciones sean del mismo tipo)
+    const itemId = parseInt(id, 10);
+
+    // Buscar el item en el catálogo
+    const index = itemsCatalog.findIndex(item => item.id === itemId);
+
+    // Verificar si el item existe
+    if (index === -1) {
+        return res.status(404).json({ message: "Item not found" });
+    }
+
+    // Eliminar el item
+    itemsCatalog.splice(index, 1);
+
+    // Devolver una respuesta de éxito
+    res.status(200).json({ message: "Item deleted successfully" });
+});
+
+
 app.listen(PORT, () => {
-    console.log(`Example app listening on port ${PORT}`)
-  })
+    console.log(`Server running on port ${PORT}`)
+})
 
   
